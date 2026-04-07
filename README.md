@@ -11,6 +11,7 @@ Rustの練習のためにGridWorldを作成。
 RustのcandleでのDQN実装コードはまだ少ないので、誰かの参考になればと思います。（あえて日本語で書きます）
 
 ##フィールドの概要
+![フィールド図](./save_data/gridworld設定.png)
 
 
 
