@@ -1,7 +1,7 @@
 use serde::Serialize;
 use std::fs::File;
 use std::io::Write;
-use rust::dqn::QNetwork;
+use rust::dqn::DuelingQNet;
 use rust::agent::DQNAgent;
 use candle_core::{Device,Result,Tensor};
 use candle_core::Module;
@@ -16,7 +16,7 @@ struct QFrame{
     best_action:String,
 }
 
-pub fn export_q_table_to_json(model:&QNetwork,path:&str,device:&Device) -> Result<()>{
+pub fn export_q_table_to_json(model:&DuelingQNet,path:&str,device:&Device) -> Result<()>{
     let mut data = Vec::new();
 
     for &mid_flag in &[-1.0,1.0]{
@@ -55,7 +55,7 @@ pub fn export_q_table_to_json(model:&QNetwork,path:&str,device:&Device) -> Resul
 
 fn main() -> Result<()>{
     let device = Device::Cpu;
-    let mut agent = DQNAgent::new(1000)?;
+    let mut agent = DQNAgent::new(1000,3)?;
 
     
     // 1. ロード前の値をメモ
@@ -65,7 +65,7 @@ fn main() -> Result<()>{
     };
 
     // 2. ロード実行
-    agent.load("ep1000.safetensors")?;
+    agent.load("ep2000.safetensors")?;
 
     // 3. ロード後の値を比較
     let val_after = {
