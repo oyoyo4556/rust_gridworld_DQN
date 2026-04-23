@@ -109,6 +109,7 @@ impl DQNAgent {
 
         let next_q_values = self.target_net.forward(&next_states_t)?;
         let max_next_q = next_q_values.gather(&next_actions.unsqueeze(1)?,1)?.squeeze(1)?;
+        let max_next_q = max_next_q.detach();
 
         let ones = dones_t.ones_like()?;
         let not_done = ones.sub (&dones_t)?;
