@@ -130,6 +130,16 @@ alphaはどの程度、優先度をつけるかのパラメータであり、1.0
 
 学習は4000episodeしているので、データが足りていないというよりはTD誤差の小さいところをQNetが捨てているのだと考えられます。
 
+## バグ修正
+target_netのdetach()を忘れていたため、target_netにも勾配が流れてしまっていた。その修正後の学習結果
+<p>
+<img src="./save_data/q_policy_midf_4000.png/" width="350" alt="Pre-Intermediate">
+<img src="./save_data/q_policy_midt_4000.png/" width="350" alt="Post-intermediate">
+</p>
+
+あまり結果は変わらないが、表現力を抑えているため特定のルート以外は表現できていない。betaが収束しきる前に学習を終えている影響もあるとは思われる
+
+
 ## 最後に
 
 RustでのDQN実装例が少なく、さらに日本語で書いているものは非常に少ないので、ひとつの実装例として参考になる部分があれば幸いです。
