@@ -113,7 +113,7 @@ impl DQNAgent {
 
         let ones = dones_t.ones_like()?;
         let not_done = ones.sub (&dones_t)?;
-        let n_gamma = self.gamma.powi(self.n_step as i32);
+        let n_gamma = self.gamma.powi(self.n_step as i32);//ここで固定のnを使っているが、done時に割引すぎている。修正予定
         let gamma_t = Tensor::new(n_gamma,&self.device)?;
         let target_q = max_next_q.broadcast_mul(&gamma_t)?.broadcast_mul(&not_done)?.broadcast_add(&rewards_t)?;
 
