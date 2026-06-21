@@ -138,9 +138,20 @@ target_netのdetach()を忘れていたため、target_netにも勾配が流れ�
 
 あまり結果は変わらないが、表現力を抑えているため特定のルート以外は表現できていない。betaが収束しきる前に学習を終えている影響もあるとは思われる
 
+---
+
+<p>
+<img src="./save_data/post_debug.png/" width="350" alt="Pre-Intermediate">
+<img src="./save_data/post_debug_midt.png/" width="350" alt="Post-intermediate">
+</p>
+
+nstepの割引すぎバグを修正し、updata間隔を1stepごとから1episodeごとにした結果、見事に過学習が抑制された。
+表現力は足りていてむしろ表現力がオーバーしていたからこそ、update頻度を減らすべきだったと学びを得ました。
+
 ## バグ
 
-n_step_bufferがn_step貯まる前にdoneが来てしまうと、割引すぎ問題が発覚した。まだ修正に手が回ってないため、後々修正する。n=1では何も問題はない。
+~~n_step_bufferがn_step貯まる前にdoneが来てしまうと、割引すぎ問題が発覚した。まだ修正に手が回ってないため、後々修正する。n=1では何も問題はない。~~
+(修正済み)
 
 
 ## 最後に
