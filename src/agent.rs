@@ -20,7 +20,7 @@ pub struct DQNAgent {
     epsilon_decay:f64,
     pub beta:f32,
     beta_increment:f32,
-    n_step_buffer:VecDeque<(Vec<f32>,Action,f32)>,
+    n_step_buffer:VecDeque<(Vec<f32>,Action,f32,Vec<f32>,bool)>,
     n_step: usize,
 }
 
@@ -87,6 +87,8 @@ impl DQNAgent {
         let rewards_t = Tensor::from_vec(rewards,batch_size,&self.device)?;
         let dones:Vec<f32> = batch.iter().map(|e| if e.done {1.0} else {0.0}).collect();
         let dones_t = Tensor::from_vec(dones,batch_size,&self.device)?;
+        let next_gammas:Vec<f32> = batch.iter().map(|e| e.next_gamma).collect();
+        let next_gammas_t = Tensor::from_vec(next_gammas,batch_size,&self.device)?;
 
         //IS_Weights
 
@@ -113,9 +115,7 @@ impl DQNAgent {
 
         let ones = dones_t.ones_like()?;
         let not_done = ones.sub (&dones_t)?;
-        let n_gamma = self.gamma.powi(self.n_step as i32);//ここで固定のnを使っているが、done時に割引すぎている。修正予定
-        let gamma_t = Tensor::new(n_gamma,&self.device)?;
-        let target_q = max_next_q.broadcast_mul(&gamma_t)?.broadcast_mul(&not_done)?.broadcast_add(&rewards_t)?;
+        let target_q = max_next_q.broadcast_mul(&next_gammas_t)?.broadcast_mul(&not_done)?.broadcast_add(&rewards_t)?;
 
         let td_errors = current_q.sub(&target_q)?;
         let squared_errors = td_errors.sqr()?;
@@ -141,21 +141,29 @@ impl DQNAgent {
     }
 
     pub fn add_experience(&mut self,state:Vec<f32>,action:Action,reward:f32,next_state:Vec<f32>,done:bool) {
-        self.n_step_buffer.push_back((state,action,reward));
+        self.n_step_buffer.push_back(
+            (state,action,reward,next_state,done)
+        );
         if done || self.n_step_buffer.len() >= self.n_step {
             while ! self.n_step_buffer.is_empty(){
-                let (s_start,a_start,_) = self.n_step_buffer[0].clone();
+                
+                let (s_start,a_start,_,_,_) = &self.n_step_buffer[0];
                 let mut discount_reward = 0.0;
-                for (i,(_,_,r)) in self.n_step_buffer.iter().enumerate(){
+                for (i,(_,_,r,_,_)) in self.n_step_buffer.iter().enumerate(){
                     discount_reward += r * self.gamma.powi(i as i32);
                 }
+                let next_gamma = self.gamma.powi(self.n_step_buffer.len() as i32);
 
+                let (_,_,_,last_next_state,last_done) = self.n_step_buffer.back().expect(
+                    "Failed to get Last element from n_step_buffer "
+                );
                 let exp = Experience {
-                    state:s_start,
-                    action:a_start,
+                    state:s_start.clone(),
+                    action:*a_start,
                     reward:discount_reward,
-                    next_state:next_state.clone(),
-                    done,
+                    next_state:last_next_state.clone(),
+                    done:*last_done,
+                    next_gamma,
                 };
 
                 self.buffer.add(exp);

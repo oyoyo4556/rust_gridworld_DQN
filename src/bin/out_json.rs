@@ -65,7 +65,7 @@ fn main() -> Result<()>{
     };
 
     // 2. ロード実行
-    agent.load("ep2000.safetensors")?;
+    agent.load("ep20000.safetensors")?;
 
     // 3. ロード後の値を比較
     let val_after = {
