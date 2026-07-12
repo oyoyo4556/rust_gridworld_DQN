@@ -1,5 +1,4 @@
 use std::collections::VecDeque;
-use crate::env::Action;
 use rand::prelude::IndexedRandom;
 use crate::common::Experience;
 
@@ -7,7 +6,7 @@ use crate::common::Experience;
 
 pub struct ReplayBuffer{
     pub buffer: VecDeque<Experience>,
-    capacity: usize,
+    pub capacity: usize,
 }
 
 impl ReplayBuffer{
@@ -18,18 +17,17 @@ impl ReplayBuffer{
         }
     }
 
-    pub fn add(&mut self,state:Vec<f32>,action:Action,reward:f32,
-        next_state:Vec<f32>,done:bool,next_gamma:f32) {
+    pub fn add(&mut self,exp:Experience) {
             if self.buffer.len() >= self.capacity{
                 self.buffer.pop_front();
             }
             self.buffer.push_back(Experience{
-                state,
-                action,
-                reward,
-                next_state,
-                done,
-                next_gamma,
+                state: exp.state,
+                action: exp.action,
+                reward: exp.reward,
+                next_state: exp.next_state,
+                done: exp.done,
+                next_gamma: exp.next_gamma,
             });
     }
 

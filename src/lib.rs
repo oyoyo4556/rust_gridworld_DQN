@@ -4,3 +4,5 @@ pub mod buffer;
 pub mod dqn;
 pub mod common;
 pub mod per_buffer;
+pub mod rnet;
+pub mod drn_agent;
